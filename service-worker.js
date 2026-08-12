@@ -1,14 +1,12 @@
 /* =========================================================
-   service-worker.js — DUKUNGAN OFFLINE (opsional)
+   service-worker.js — OFFLINE CACHE V3
    ---------------------------------------------------------
-   Aplikasi TETAP berjalan normal walau service worker gagal
-   atau tidak didukung. Semua path memakai relative path agar
-   cocok dengan GitHub Pages project site:
-   https://username.github.io/nama-repository/
+   V3 memakai network-first untuk HTML/JS/CSS/data agar update
+   GitHub Pages tidak tertahan cache lama. Audio/gambar tetap
+   cache-first supaya hemat data dan responsif.
    ========================================================= */
 
-var CACHE = "jejak-huruf-v1";
-
+var CACHE = "jejak-huruf-v3-audio-id";
 var ASSETS = [
   "./",
   "./index.html",
@@ -34,9 +32,8 @@ var ASSETS = [
 self.addEventListener("install", function (e) {
   e.waitUntil(
     caches.open(CACHE).then(function (c) {
-      // addAll gagal bila satu file hilang -> pakai add satu per satu
       return Promise.all(ASSETS.map(function (url) {
-        return c.add(url).catch(function () { /* abaikan file yang belum ada */ });
+        return c.add(url).catch(function () { /* file opsional boleh tidak ada */ });
       }));
     }).then(function () { return self.skipWaiting(); })
   );
@@ -52,25 +49,47 @@ self.addEventListener("activate", function (e) {
   );
 });
 
+function sameOrigin(req) {
+  try { return new URL(req.url).origin === self.location.origin; }
+  catch (e) { return false; }
+}
+
+function isAppCode(req) {
+  var p = new URL(req.url).pathname;
+  return req.mode === "navigate" || /\.(?:html|js|css|json)$/i.test(p);
+}
+
+function networkFirst(req) {
+  return fetch(req).then(function (res) {
+    if (res && res.status === 200) {
+      var copy = res.clone();
+      caches.open(CACHE).then(function (c) { c.put(req, copy); });
+    }
+    return res;
+  }).catch(function () {
+    return caches.match(req).then(function (hit) {
+      if (hit) return hit;
+      if (req.mode === "navigate") return caches.match("./index.html");
+      return new Response("", { status: 504, statusText: "Offline" });
+    });
+  });
+}
+
+function cacheFirst(req) {
+  return caches.match(req).then(function (hit) {
+    if (hit) return hit;
+    return fetch(req).then(function (res) {
+      if (res && res.status === 200) {
+        var copy = res.clone();
+        caches.open(CACHE).then(function (c) { c.put(req, copy); });
+      }
+      return res;
+    });
+  });
+}
+
 self.addEventListener("fetch", function (e) {
   var req = e.request;
-  if (req.method !== "GET") return;
-  if (new URL(req.url).origin !== self.location.origin) return;
-
-  e.respondWith(
-    caches.match(req).then(function (hit) {
-      if (hit) return hit;
-      return fetch(req).then(function (res) {
-        if (res && res.status === 200 && res.type === "basic") {
-          var copy = res.clone();
-          caches.open(CACHE).then(function (c) { c.put(req, copy); });
-        }
-        return res;
-      }).catch(function () {
-        // offline & belum ter-cache: untuk navigasi kembalikan halaman utama
-        if (req.mode === "navigate") return caches.match("./index.html");
-        return new Response("", { status: 504, statusText: "Offline" });
-      });
-    })
-  );
+  if (req.method !== "GET" || !sameOrigin(req)) return;
+  e.respondWith(isAppCode(req) ? networkFirst(req) : cacheFirst(req));
 });
