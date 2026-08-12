@@ -1,12 +1,12 @@
 /* =========================================================
-   service-worker.js — OFFLINE CACHE V7
+   service-worker.js — OFFLINE CACHE V8
    ---------------------------------------------------------
-   V7 memakai network-first untuk HTML/JS/CSS/data agar update
+   V8 memakai network-first untuk HTML/JS/CSS/data agar update
    GitHub Pages tidak tertahan cache lama. Audio/gambar tetap
    cache-first supaya hemat data dan responsif.
    ========================================================= */
 
-var CACHE = "jejak-huruf-v7-anchor-pronunciation";
+var CACHE = "jejak-huruf-v8-clean-syllable-endings";
 var ASSETS = [
   "./",
   "./index.html",
