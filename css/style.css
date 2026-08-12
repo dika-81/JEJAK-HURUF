@@ -115,6 +115,7 @@ main{ padding-bottom:150px; }
 .menu-ico{ width:56px;height:56px; display:grid;place-items:center; border-radius:20px }
 .menu-ico svg{width:38px;height:38px}
 .menu-label{ font-size:1.05rem; font-weight:800; text-align:center }
+.menu-sub{ margin-top:-5px; font-size:.76rem; font-weight:800; color:var(--ink-soft); text-align:center }
 .menu-card.c1{border-color:#FFE0A3} .menu-card.c1 .menu-ico{background:#FFF1D0;color:var(--orange)}
 .menu-card.c2{border-color:#BFE6EF} .menu-card.c2 .menu-ico{background:#E1F4F9;color:var(--deep)}
 .menu-card.c3{border-color:#F7C9C8} .menu-card.c3 .menu-ico{background:#FDE6E5;color:var(--pink)}
