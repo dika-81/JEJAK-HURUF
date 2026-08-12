@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Jejak Huruf — Petualangan Baca Tulis Anak</title>
+<meta name="description" content="Jejak Huruf: aplikasi belajar membaca dan menulis untuk anak PAUD, TK, dan SD kelas awal. Dengar, lihat, sentuh, tulis, baca." />
+<meta name="theme-color" content="#FFB703" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<link rel="manifest" href="./manifest.json" />
+<link rel="icon" href="./assets/icons/icon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="./assets/icons/icon-192.svg" />
+<link rel="stylesheet" href="./css/style.css" />
+</head>
+<body>
+<a class="skip-link" href="#main">Lewati ke konten</a>
+
+<!-- ============ TOPBAR ============ -->
+<header class="topbar" id="topbar">
+  <button class="icon-btn" id="btn-back" type="button" aria-label="Kembali ke menu" hidden>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <h1 class="topbar-title" id="screen-title">Jejak Huruf</h1>
+  <button class="icon-btn" id="btn-repeat" type="button" aria-label="Ulangi suara">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h3l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8a5 5 0 0 1 0 8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+  </button>
+</header>
+
+<main id="main">
+
+  <!-- ============ BERANDA ============ -->
+  <section class="screen is-active" id="screen-home" data-title="Jejak Huruf">
+    <div class="hero">
+      <div class="hero-logo" aria-hidden="true">
+        <span class="hl a">J</span><span class="hl b">E</span><span class="hl c">J</span><span class="hl d">A</span><span class="hl e">K</span>
+      </div>
+      <p class="hero-sub">Petualangan Baca Tulis Anak</p>
+    </div>
+
+    <nav class="menu-grid" aria-label="Menu utama">
+      <button class="menu-card c1" type="button" data-go="screen-listen">
+        <span class="menu-ico" aria-hidden="true">
+          <svg viewBox="0 0 48 48"><path d="M10 19h7l9-7v24l-9-7h-7z" fill="currentColor"/><path d="M32 16a11 11 0 0 1 0 16M37 11a18 18 0 0 1 0 26" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/></svg>
+        </span>
+        <span class="menu-label">Dengar Huruf</span>
+      </button>
+
+      <button class="menu-card c2" type="button" data-go="screen-trace">
+        <span class="menu-ico" aria-hidden="true">
+          <svg viewBox="0 0 48 48"><path d="M31 6l11 11-20 20-11 3 3-11z" fill="currentColor"/><path d="M6 43h36" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>
+        </span>
+        <span class="menu-label">Jejak Huruf</span>
+      </button>
+
+      <button class="menu-card c3" type="button" data-go="screen-play">
+        <span class="menu-ico" aria-hidden="true">
+          <svg viewBox="0 0 48 48"><rect x="4" y="14" width="40" height="22" rx="11" fill="currentColor"/><path d="M14 21v8M10 25h8M31 23h.1M35 28h.1" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/></svg>
+        </span>
+        <span class="menu-label">Bermain Huruf</span>
+      </button>
+
+      <button class="menu-card c4" type="button" data-go="screen-read">
+        <span class="menu-ico" aria-hidden="true">
+          <svg viewBox="0 0 48 48"><path d="M24 12c-5-4-11-4-17-3v27c6-1 12-1 17 3 5-4 11-4 17-3V9c-6-1-12-1-17 3z" fill="currentColor"/><path d="M24 12v27" fill="none" stroke="#fff" stroke-width="2.6"/></svg>
+        </span>
+        <span class="menu-label">Mulai Membaca</span>
+      </button>
+
+      <button class="menu-card c5 wide" type="button" data-go="screen-village">
+        <span class="menu-ico" aria-hidden="true">
+          <svg viewBox="0 0 48 48"><path d="M24 6 4 22h6v18h28V22h6z" fill="currentColor"/><rect x="19" y="27" width="10" height="13" rx="2" fill="#fff"/></svg>
+        </span>
+        <span class="menu-label">Kampung Hurufku</span>
+      </button>
+    </nav>
+
+    <button class="ghost-btn" type="button" data-go="screen-parent">Orang Tua / Guru</button>
+  </section>
+
+  <!-- ============ DENGAR HURUF ============ -->
+  <section class="screen" id="screen-listen" data-title="Dengar Huruf">
+    <p class="instruction">Sentuh huruf untuk mendengarnya.</p>
+    <div class="alphabet-grid" id="listen-grid" role="list"></div>
+  </section>
+
+  <!-- ============ DETAIL HURUF ============ -->
+  <section class="screen" id="screen-letter" data-title="Huruf">
+    <div class="letter-stage">
+      <div class="big-letter" id="letter-big" aria-live="polite">A</div>
+      <div class="letter-pic" id="letter-pic" aria-hidden="true"></div>
+      <p class="letter-word" id="letter-word">Apel</p>
+    </div>
+    <div class="row-btns">
+      <button class="big-btn primary" type="button" id="letter-play">
+        <span aria-hidden="true">🔊</span> Dengar lagi
+      </button>
+      <button class="big-btn accent" type="button" id="letter-trace">
+        <span aria-hidden="true">✏️</span> Ayo tulis
+      </button>
+    </div>
+    <div class="row-btns small">
+      <button class="pill-btn" type="button" id="letter-prev">◀ Sebelumnya</button>
+      <button class="pill-btn" type="button" id="letter-next">Berikutnya ▶</button>
+    </div>
+  </section>
+
+  <!-- ============ PILIH HURUF UNTUK DITULIS ============ -->
+  <section class="screen" id="screen-trace" data-title="Jejak Huruf">
+    <p class="instruction">Pilih huruf yang ingin kamu tulis.</p>
+    <div class="alphabet-grid" id="trace-grid" role="list"></div>
+  </section>
+
+  <!-- ============ CANVAS TRACING ============ -->
+  <section class="screen no-pad" id="screen-canvas" data-title="Ikuti Garis">
+    <div class="trace-head">
+      <div class="level-switch" role="group" aria-label="Tingkat bantuan">
+        <button class="lvl" type="button" data-level="1" aria-pressed="true">1</button>
+        <button class="lvl" type="button" data-level="2" aria-pressed="false">2</button>
+        <button class="lvl" type="button" data-level="3" aria-pressed="false">3</button>
+      </div>
+      <div class="trace-progress"><span id="trace-bar"></span></div>
+    </div>
+    <div class="canvas-wrap" id="canvas-wrap">
+      <canvas id="trace-canvas" aria-label="Area menulis huruf. Ikuti garis panduan dengan jari, stylus, atau tetikus."></canvas>
+      <div class="fx-layer" id="fx-layer" aria-hidden="true"></div>
+    </div>
+    <div class="trace-actions">
+      <button class="big-btn soft" type="button" id="trace-clear"><span aria-hidden="true">🧽</span> Hapus</button>
+      <button class="big-btn primary" type="button" id="trace-check"><span aria-hidden="true">✅</span> Selesai</button>
+    </div>
+  </section>
+
+  <!-- ============ BERMAIN ============ -->
+  <section class="screen" id="screen-play" data-title="Bermain Huruf">
+    <p class="instruction">Pilih permainan.</p>
+    <div class="play-list">
+      <button class="play-card p1" type="button" data-game="find">
+        <span class="play-emoji" aria-hidden="true">🔎</span>
+        <span><strong>Cari Huruf</strong><small>Dengar lalu pilih hurufnya</small></span>
+      </button>
+      <button class="play-card p2" type="button" data-game="initial">
+        <span class="play-emoji" aria-hidden="true">🖼️</span>
+        <span><strong>Huruf Awal</strong><small>Tebak huruf pertama gambar</small></span>
+      </button>
+      <button class="play-card p3" type="button" data-game="match">
+        <span class="play-emoji" aria-hidden="true">🧩</span>
+        <span><strong>Pasangan</strong><small>Seret huruf ke gambar</small></span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ============ GAME AREA (dinamis) ============ -->
+  <section class="screen" id="screen-game" data-title="Bermain"></section>
+
+  <!-- ============ MEMBACA ============ -->
+  <section class="screen" id="screen-read" data-title="Mulai Membaca">
+    <p class="instruction">Pilih latihan membaca.</p>
+    <div class="play-list">
+      <button class="play-card p4" type="button" data-read="syllable">
+        <span class="play-emoji" aria-hidden="true">🔤</span>
+        <span><strong>Suku Kata</strong><small>BA BI BU BE BO</small></span>
+      </button>
+      <button class="play-card p5" type="button" data-read="word">
+        <span class="play-emoji" aria-hidden="true">📦</span>
+        <span><strong>Susun Kata</strong><small>Susun huruf jadi kata</small></span>
+      </button>
+      <button class="play-card p6" type="button" data-read="sentence">
+        <span class="play-emoji" aria-hidden="true">📖</span>
+        <span><strong>Baca Kalimat</strong><small>INI BUKU.</small></span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ============ AREA MEMBACA (dinamis) ============ -->
+  <section class="screen" id="screen-reading" data-title="Membaca"></section>
+
+  <!-- ============ KAMPUNG HURUFKU ============ -->
+  <section class="screen" id="screen-village" data-title="Kampung Hurufku">
+    <p class="instruction" id="village-info">Kumpulkan barang dengan belajar huruf!</p>
+    <div class="village" id="village"></div>
+  </section>
+
+  <!-- ============ ORANG TUA / GURU ============ -->
+  <section class="screen" id="screen-parent" data-title="Orang Tua / Guru"></section>
+
+</main>
+
+<!-- ============ MASKOT KIKO ============ -->
+<div class="kiko-bar" id="kiko-bar">
+  <button class="kiko" id="kiko" type="button" aria-label="Kiko, ulangi petunjuk">
+    <svg viewBox="0 0 100 100" aria-hidden="true">
+      <ellipse cx="50" cy="92" rx="26" ry="6" fill="rgba(0,0,0,.12)"/>
+      <path d="M50 8c4 0 6 3 6 6" stroke="#7C4A1E" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <circle cx="50" cy="50" r="34" fill="#FFD9A8"/>
+      <path d="M16 44c0-22 15-32 34-32s34 10 34 32c-8-6-18-10-34-10s-26 4-34 10z" fill="#7C4A1E"/>
+      <circle cx="18" cy="54" r="7" fill="#FFC98C"/><circle cx="82" cy="54" r="7" fill="#FFC98C"/>
+      <circle class="eye" cx="39" cy="53" r="5.2" fill="#2B2118"/>
+      <circle class="eye" cx="61" cy="53" r="5.2" fill="#2B2118"/>
+      <circle cx="41" cy="51" r="1.7" fill="#fff"/><circle cx="63" cy="51" r="1.7" fill="#fff"/>
+      <circle cx="31" cy="64" r="5" fill="#FF9A9A" opacity=".7"/>
+      <circle cx="69" cy="64" r="5" fill="#FF9A9A" opacity=".7"/>
+      <path d="M41 66q9 8 18 0" stroke="#2B2118" stroke-width="4" fill="none" stroke-linecap="round"/>
+    </svg>
+  </button>
+  <div class="bubble" id="kiko-bubble" role="status" aria-live="polite">Hai! Aku Kiko. Ayo belajar huruf!</div>
+</div>
+
+<!-- lapisan efek global (confetti / kilau) -->
+<div class="fx-layer fx-global" id="fx-global" aria-hidden="true"></div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- Data terpisah dari engine agar mudah diganti -->
+<script src="./data/letters.js"></script>
+<script src="./data/syllables.js"></script>
+<script src="./data/words.js"></script>
+<!-- Engine -->
+<script src="./js/illustrations.js"></script>
+<script src="./js/audio.js"></script>
+<script src="./js/progress.js"></script>
+<script src="./js/rewards.js"></script>
+<script src="./js/navigation.js"></script>
+<script src="./js/tracing.js"></script>
+<script src="./js/games.js"></script>
+<script src="./js/reading.js"></script>
+<script src="./js/app.js"></script>
+</body>
+</html>

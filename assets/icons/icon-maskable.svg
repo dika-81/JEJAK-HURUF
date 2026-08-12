@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Jejak Huruf">
+  <rect width="512" height="512" fill="#FFB703"/>
+  <circle cx="256" cy="256" r="140" fill="#FFF7E8"/>
+  <path d="M176 330 L256 164 L336 330" fill="none" stroke="#FB8500" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M210 268 H302" fill="none" stroke="#219EBC" stroke-width="28" stroke-linecap="round"/>
+</svg>
