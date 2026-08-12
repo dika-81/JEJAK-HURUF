@@ -1,8 +1,17 @@
-# Folder Audio
+# Audio Bahasa Indonesia
 
-Letakkan rekaman suara Bahasa Indonesia di folder ini dengan format **MP3**.
-Selama file belum ada, aplikasi otomatis memakai suara bawaan perangkat
-(Text-to-Speech) — aplikasi **tidak akan error**.
+Folder ini berisi **242 aset MP3 `id-ID`** agar pengucapan aplikasi konsisten
+di semua perangkat. Materi utama tidak lagi bergantung pada suara bawaan
+browser. `manifest.json` menjadi daftar pemeriksaan kelengkapan aset; audio
+yang diputar akan disimpan otomatis oleh service worker untuk pemakaian offline.
+
+Audio memakai suara neural Bahasa Indonesia. Nama huruf dan suku kata yang
+rawan terbaca sebagai ejaan asing harus diuji satu per satu; aset `b.mp3`,
+`w.mp3`, dan `bi.mp3` diambil langsung dari bunyi pada kata acuan **bensin**,
+**cewek**, dan **bikin**, lalu dipotong sebelum konsonan berikutnya. Dengan
+begitu hasilnya adalah **be**, **we**, dan **bi** yang menyatu, bukan nama huruf
+bergaya Inggris atau ejaan terpisah. Jika tersedia rekaman manusia, ganti
+berkas dengan nama yang sama agar kode aplikasi tidak perlu diubah.
 
 ## Daftar file yang perlu direkam
 
@@ -28,26 +37,35 @@ Isi rekaman: nama huruf dalam Bahasa Indonesia.
 | m.mp3 | "Em" | z.mp3 | "Zet" |
 
 ### 2. Kata contoh (26 file)
-Nama file mengikuti kolom `audio.word` pada `data/letters.js`:
-
-`apel.mp3` `bola.mp3` `cicak.mp3` `dadu.mp3` `ember.mp3` `foto.mp3` `gajah.mp3`
-`hujan.mp3` `ikan.mp3` `jeruk.mp3` `kucing.mp3` `lampu.mp3` `mobil.mp3` `nanas.mp3`
-`ombak.mp3` `pensil.mp3` `quran.mp3` `rumah.mp3` `sepatu.mp3` `topi.mp3` `ular.mp3`
-`vas.mp3` `wortel.mp3` `xilofon.mp3` `yoyo.mp3` `zebra.mp3`
+Nama file mengikuti kolom `audio.word` pada `data/letters.js`, misalnya
+`contoh_a_apel.mp3` dan `contoh_b_bola.mp3`.
 
 Isi rekaman contoh: **"A seperti Apel"**.
 
-### 3. Suku kata (opsional)
+Versi kata tanpa nama huruf memakai awalan `kata_`, misalnya
+`kata_apel.mp3` dan `kata_bola.mp3`.
+
+### 3. Fonik dan suku kata
+`fonem_a.mp3` sampai `fonem_z.mp3`, serta:
+
 `ba.mp3` `bi.mp3` `bu.mp3` `be.mp3` `bo.mp3` … sesuai `data/syllables.js`.
 
-### 4. Kata untuk Susun Kata (opsional)
+### 4. Kata untuk Susun Kata
 `buku.mp3` `sapi.mp3` `meja.mp3` `roti.mp3` `kuda.mp3` `baju.mp3` `nasi.mp3` `susu.mp3`
 
-### 5. Kalimat (opsional)
+### 5. Kalimat
 `ini_buku.mp3` `ini_bola.mp3` `itu_meja.mp3` `ibu_baca_buku.mp3`
 `budi_makan_nasi.mp3` `adi_minum_susu.mp3` `sapi_makan_rumput.mp3` `aku_suka_membaca.mp3`
 
-## Tips merekam
+### 6. Instruksi
+
+Berkas berawalan `prompt_` berisi instruksi dan umpan balik Kiko, misalnya
+`prompt_mana_huruf.mp3`, `prompt_susun_kata.mp3`, dan
+`prompt_ikuti_garis.mp3`.
+
+## Panduan mengganti dengan rekaman manusia
 - Suara jelas, pelan, ramah, dan ceria.
 - Potong hening di awal & akhir agar respons terasa cepat.
 - Bitrate 96–128 kbps sudah cukup; ukuran file kecil = aplikasi ringan.
+- Jangan mengubah nama berkas.
+- Perbarui `manifest.json` hanya jika menambah atau menghapus berkas.

@@ -1,11 +1,13 @@
 /* =========================================================
-   js/audio.js — MESIN SUARA BAHASA INDONESIA (V3)
+   js/audio.js — MESIN SUARA BAHASA INDONESIA (V4)
    ---------------------------------------------------------
    Prioritas:
      1) Rekaman lokal di ./assets/audio/ (MP3/M4A/WAV/OGG/WEBM)
      2) TTS browser HANYA dengan target bahasa Indonesia id-ID
 
-   V3 sengaja TIDAK memakai fallback bahasa Melayu (ms-MY) atau
+   V4 membawa rekaman id-ID untuk seluruh materi inti dan instruksi.
+   Browser TTS hanya menjadi pagar pengaman bila sebuah aset gagal dimuat.
+   Aplikasi TIDAK memakai fallback bahasa Melayu (ms-MY) atau
    bahasa Inggris. Teks legacy seperti "beh", "ceh", "deh" juga
    dinormalisasi sebelum dibacakan agar tidak terdengar "beh/ceh".
    ========================================================= */
@@ -25,6 +27,37 @@ JH.Audio = (function () {
   var voicesReady = false;
   var settings = { sound: true };
   var TTS = ("speechSynthesis" in window) && ("SpeechSynthesisUtterance" in window);
+
+  /* Teks instruksi yang sudah memiliki aset audio id-ID. Kunci dibuat
+     tanpa tanda baca agar teks UI boleh memakai titik/tanda seru. */
+  var TEXT_FILES = {
+    "sentuh huruf untuk mendengarnya": "prompt_sentuh_huruf",
+    "pilih huruf yang ingin kamu tulis": "prompt_pilih_huruf_tulis",
+    "mana huruf": "prompt_mana_huruf",
+    "hebat itu huruf": "prompt_hebat_itu_huruf",
+    "belum coba dengarkan lagi": "prompt_belum_dengarkan_lagi",
+    "betul": "prompt_betul",
+    "belum dengarkan lagi": "prompt_dengarkan_lagi",
+    "seret huruf ke gambarnya": "prompt_seret_huruf",
+    "belum pas coba lagi ya": "prompt_belum_pas",
+    "hebat sekali": "prompt_hebat_sekali",
+    "bagus terus berlatih": "prompt_bagus_terus",
+    "kerja bagus ayo coba lagi": "prompt_kerja_bagus",
+    "sentuh suku kata dengarkan bunyinya": "prompt_sentuh_suku_kata",
+    "susun huruf menjadi kata": "prompt_susun_kata",
+    "belum pas coba kotak lain": "prompt_coba_kotak_lain",
+    "sentuh kata untuk mendengarnya": "prompt_sentuh_kata",
+    "ayo tulis huruf": "prompt_ayo_tulis_huruf",
+    "ikuti garis mulai dari titik yang bercahaya": "prompt_ikuti_garis",
+    "sudah bersih ayo coba lagi": "prompt_sudah_bersih",
+    "wah sangat bagus": "prompt_wah_sangat_bagus",
+    "bagus sedikit lagi": "prompt_bagus_sedikit_lagi",
+    "ayo coba lagi dari titik yang bercahaya": "prompt_coba_dari_titik",
+    "bagus sekarang garis nomor 2": "prompt_bagus_garis_2",
+    "bagus sekarang garis nomor 3": "prompt_bagus_garis_3",
+    "bagus sekarang garis nomor 4": "prompt_bagus_garis_4",
+    "dimulai dengan huruf apa": "prompt_dimulai_huruf_apa"
+  };
 
   /* ---------- pemilihan voice Indonesia ---------- */
   function isIndonesianVoice(v) {
@@ -101,6 +134,18 @@ JH.Audio = (function () {
     // Rapikan jeda agar pelafalan tidak terburu-buru.
     s = s.replace(/\s+/g, " ");
     return s;
+  }
+
+  function textKey(text) {
+    return normalizeIndonesian(text)
+      .toLocaleLowerCase("id-ID")
+      .replace(/[^a-z0-9à-ž]+/gi, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function localFileForText(text) {
+    return TEXT_FILES[textKey(text)] || "";
   }
 
   /* ---------- WebAudio untuk efek ---------- */
@@ -247,7 +292,8 @@ JH.Audio = (function () {
 
   function sayOne(part) {
     if (typeof part === "string") part = { text: part };
-    return playFile(part && part.file).catch(function () {
+    var file = part && (part.file || localFileForText(part.text));
+    return playFile(file).catch(function () {
       return speak(part && part.text, part && part.rate);
     });
   }
@@ -297,6 +343,7 @@ JH.Audio = (function () {
     unlock: unlock,
     setSound: setSound,
     normalizeIndonesian: normalizeIndonesian,
+    localFileForText: localFileForText,
     voiceInfo: voiceInfo,
     get soundOn() { return settings.sound; },
     get ttsAvailable() { return TTS; }

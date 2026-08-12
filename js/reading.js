@@ -51,13 +51,11 @@ JH.Reading = (function () {
       void btn.offsetWidth;              // paksa animasi diulang
       btn.classList.add("merging");
       JH.Audio.sfx("pop");
-      var cLetter = window.LETTER_MAP[s.c];
-      var vLetter = window.LETTER_MAP[s.v];
+      // Suku kata dibaca sebagai satu bunyi (contoh: "bi"), bukan dieja
+      // sebagai nama huruf terpisah ("B - I").
       JH.Audio.say([
-        { file: s.c.toLowerCase(), text: cLetter ? cLetter.phonics : s.c, gap: 220 },
-        { file: s.v.toLowerCase(), text: vLetter ? vLetter.phonics : s.v, gap: 220 },
-        { file: s.id.toLowerCase(), text: s.id, gap: 200 },
-        { file: s.id.toLowerCase(), text: s.id }
+        { file: s.id.toLowerCase(), text: s.id.toLowerCase(), gap: 260 },
+        { file: s.id.toLowerCase(), text: s.id.toLowerCase() }
       ]);
       JH.UI.kiko(s.c + "... " + s.v + "... " + s.id + "!", false);
       JH.Progress.markSyllable(s.id);
@@ -168,12 +166,10 @@ JH.Reading = (function () {
           for (var i = start; i < end; i++) if (!filled[i]) complete = false;
           if (complete) {
             var syl = target.slice(start, end).join("");
-            var parts = target.slice(start, end).map(function (L) {
-              var lo = window.LETTER_MAP[L];
-              return { file: L.toLowerCase(), text: lo ? lo.phonics : L, gap: 180 };
-            });
-            parts.push({ file: syl.toLowerCase(), text: syl });
-            JH.Audio.say(parts);
+            JH.Audio.say([
+              { file: syl.toLowerCase(), text: syl.toLowerCase(), gap: 220 },
+              { file: syl.toLowerCase(), text: syl.toLowerCase() }
+            ]);
             JH.UI.kiko(target.slice(start, end).join("... ") + "... " + syl, false);
           }
           break;

@@ -35,7 +35,7 @@ satu tugas, umpan balik positif, dan maskot pemandu bernama **Kiko**.
 | Menu | Isi |
 |---|---|
 | **Dengar Huruf** | Alfabet A–Z, ketuk huruf → suara + gambar + kata contoh |
-| **Jejak Huruf** | Latihan menulis di kanvas dengan jari/stylus/tetikus, 3 tingkat bantuan, penilaian otomatis |
+| **Jejak Huruf** | Latihan menulis huruf besar dan huruf kecil di kanvas dengan jari/stylus/tetikus, 3 tingkat bantuan, penilaian otomatis |
 | **Bermain Huruf** | Cari Huruf, Huruf Awal, Pasangan (seret & lepas) |
 | **Mulai Membaca** | Suku kata (BA BI BU BE BO…), Susun Kata, Baca Kalimat |
 | **Kampung Hurufku** | Dunia hadiah yang bertumbuh setiap huruf dikuasai |
@@ -55,9 +55,9 @@ Fitur pendukung:
   Animasi baru dapat ditambahkan lewat `JH.Rewards.registerMagic("X", fn)`.
 - **Latihan adaptif sederhana** — huruf yang sering salah (mis. b/d, m/n, p/q)
   otomatis muncul lebih sering di permainan, berdasarkan hitungan benar/salah.
-- **Suara berlapis** — memakai rekaman MP3 bila tersedia; bila belum ada,
-  otomatis memakai Text-to-Speech Bahasa Indonesia bawaan perangkat.
-  Aplikasi **tidak error** walau folder audio kosong.
+- **Suara Bahasa Indonesia konsisten** — 242 aset MP3 `id-ID` mencakup nama
+  huruf, fonik, suku kata, kata, kalimat, dan instruksi utama. Text-to-Speech
+  perangkat hanya dipakai sebagai cadangan jika sebuah aset gagal dimuat.
 - **Aksesibilitas** — `aria-label`, focus state, area sentuh besar, kontras
   cukup, tombol speaker untuk mengulang, dan opsi **Kurangi Animasi**.
 - **PWA** — dapat dipasang ke layar utama dan berjalan offline.
@@ -158,13 +158,14 @@ berada di sub-folder repository. Jangan mengubahnya menjadi `/assets/…`.
 
 ## 9. Mengganti Audio
 
-1. Rekam suara Bahasa Indonesia dalam format **MP3**.
-2. Simpan di `assets/audio/` dengan nama sesuai `data/letters.js`
-   (`a.mp3`, `apel.mp3`, `b.mp3`, `bola.mp3`, …).
-3. Muat ulang halaman — aplikasi otomatis memakai rekaman itu.
+1. Rekam penutur Bahasa Indonesia dalam format **MP3**.
+2. Ganti berkas dengan nama yang sama di `assets/audio/`.
+3. Pertahankan daftar berkas pada `assets/audio/manifest.json` sebagai daftar
+   pemeriksaan kelengkapan audio.
+4. Muat ulang halaman — aplikasi otomatis memakai rekaman pengganti. Setiap
+   audio yang sudah diputar akan disimpan untuk pemakaian offline berikutnya.
 
-Daftar lengkap file yang perlu direkam ada di **`assets/audio/README.md`**.
-Selama file belum ada, aplikasi memakai Text-to-Speech perangkat.
+Konvensi nama dan cakupan rekaman dijelaskan di **`assets/audio/README.md`**.
 
 ## 10. Mengganti Gambar
 

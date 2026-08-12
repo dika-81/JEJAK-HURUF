@@ -8,22 +8,22 @@ window.VOWELS = ["A","I","U","E","O"];
 
 /* Konsonan yang dilatih (urut dari yang paling mudah/sering dipakai) */
 window.SYLLABLE_CONSONANTS = [
-  { c:"B", phonics:"beh" },
-  { c:"D", phonics:"deh" },
-  { c:"K", phonics:"keh" },
+  { c:"B", phonics:"bé"  },
+  { c:"D", phonics:"dé"  },
+  { c:"K", phonics:"ka"  },
   { c:"L", phonics:"el"  },
   { c:"M", phonics:"em"  },
   { c:"N", phonics:"en"  },
-  { c:"P", phonics:"peh" },
+  { c:"P", phonics:"pé"  },
   { c:"S", phonics:"es"  },
-  { c:"T", phonics:"teh" },
-  { c:"G", phonics:"geh" },
+  { c:"T", phonics:"té"  },
+  { c:"G", phonics:"gé"  },
   { c:"H", phonics:"ha"  },
-  { c:"J", phonics:"jeh" },
+  { c:"J", phonics:"jé"  },
   { c:"R", phonics:"er"  },
-  { c:"C", phonics:"ceh" },
-  { c:"W", phonics:"weh" },
-  { c:"Y", phonics:"yeh" }
+  { c:"C", phonics:"cé"  },
+  { c:"W", phonics:"wé"  },
+  { c:"Y", phonics:"yé"  }
 ];
 
 /* Bangun daftar suku kata: [{id:"BA", c:"B", v:"A"}, ...] */

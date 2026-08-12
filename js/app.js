@@ -7,9 +7,10 @@
 
   var h;
   var letterIndex = 0;
+  var traceCase = "upper";
 
   /* ---------------- ALFABET ---------------- */
-  function buildAlphabet(containerId, onPick) {
+  function buildAlphabet(containerId, onPick, displayLetter) {
     var box = document.getElementById(containerId);
     if (!box) return;
     JH.UI.clear(box);
@@ -18,13 +19,13 @@
         class: "letter-btn c" + (i % 6),
         type: "button",
         role: "listitem",
-        "aria-label": "Huruf " + L.letter + ", contoh kata " + L.word,
+        "aria-label": "Huruf " + (displayLetter ? displayLetter(L) : L.letter) + ", contoh kata " + L.word,
         onclick: function () {
           btn.classList.remove("pop"); void btn.offsetWidth; btn.classList.add("pop");
           JH.Audio.unlock();
           onPick(i, L);
         }
-      }, [document.createTextNode(L.letter)]);
+      }, [document.createTextNode(displayLetter ? displayLetter(L) : L.letter)]);
       box.appendChild(btn);
     });
     refreshBadges(containerId);
@@ -76,8 +77,27 @@
   function sayLetter(L) {
     JH.UI.kiko(L.letter + "... " + L.letter + " seperti " + L.word + ".", [
       { file: L.audio.letter, text: L.name, gap: 260 },
-      { file: L.audio.word, text: L.name + " seperti " + L.word }
+      // Nama huruf dan kata diputar terpisah agar pelafalan nama huruf
+      // tidak ditebak ulang oleh mesin suara di dalam sebuah kalimat.
+      { file: "kata_" + L.word.toLowerCase(), text: L.word }
     ]);
+  }
+
+  function traceGlyph(L) {
+    return traceCase === "lower" ? L.lower : L.letter;
+  }
+
+  function openTraceLetter(i, caseMode) {
+    var L = window.LETTERS[i];
+    var mode = caseMode || traceCase;
+    var glyph = mode === "lower" ? L.lower : L.letter;
+    JH.Nav.go("screen-canvas", "Tulis " + glyph);
+    JH.Tracing.relayout();
+    JH.Tracing.open(L, null, mode);
+  }
+
+  function rebuildTraceAlphabet() {
+    buildAlphabet("trace-grid", function (i) { openTraceLetter(i, traceCase); }, traceGlyph);
   }
 
   /* ---------------- KAMPUNG HURUFKU ---------------- */
@@ -224,10 +244,16 @@
       JH.Nav.go("screen-letter", "Huruf " + window.LETTERS[i].letter);
       openLetter(i);
     });
-    buildAlphabet("trace-grid", function (i) {
-      JH.Nav.go("screen-canvas", "Tulis " + window.LETTERS[i].letter);
-      JH.Tracing.relayout();
-      JH.Tracing.open(window.LETTERS[i]);
+    rebuildTraceAlphabet();
+    Array.prototype.forEach.call(document.querySelectorAll("[data-trace-case]"), function (btn) {
+      btn.addEventListener("click", function () {
+        traceCase = btn.dataset.traceCase === "lower" ? "lower" : "upper";
+        Array.prototype.forEach.call(document.querySelectorAll("[data-trace-case]"), function (other) {
+          other.setAttribute("aria-pressed", String(other === btn));
+        });
+        rebuildTraceAlphabet();
+        JH.Audio.sfx("tap");
+      });
     });
 
     // 4. detail huruf
@@ -235,9 +261,7 @@
       sayLetter(window.LETTERS[letterIndex]);
     });
     document.getElementById("letter-trace").addEventListener("click", function () {
-      JH.Nav.go("screen-canvas", "Tulis " + window.LETTERS[letterIndex].letter);
-      JH.Tracing.relayout();
-      JH.Tracing.open(window.LETTERS[letterIndex]);
+      openTraceLetter(letterIndex, "upper");
     });
     document.getElementById("letter-prev").addEventListener("click", function () { openLetter(letterIndex - 1); });
     document.getElementById("letter-next").addEventListener("click", function () { openLetter(letterIndex + 1); });

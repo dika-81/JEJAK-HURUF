@@ -27,6 +27,7 @@ JH.Tracing = (function () {
 
   var st = {
     letter: null,     // objek huruf dari data/letters.js
+    caseMode: "upper",
     level: 1,
     strokes: [],      // [{pts:[{x,y}..], cursor:int, visited:[bool]}]
     ink: [],          // goresan anak (koordinat 0..100)
@@ -399,10 +400,12 @@ JH.Tracing = (function () {
     reset();
   }
 
-  function open(letterObj, level) {
+  function open(letterObj, level, caseMode) {
     st.letter = letterObj;
+    st.caseMode = caseMode === "lower" ? "lower" : "upper";
     st.level = level || st.level || 1;
-    st.strokes = (letterObj.strokes || []).map(function (d) {
+    var sourceStrokes = st.caseMode === "lower" ? letterObj.lowerStrokes : letterObj.strokes;
+    st.strokes = (sourceStrokes || letterObj.strokes || []).map(function (d) {
       var s = samplePath(d);
       s.cursor = 0;
       s.visited = s.pts.map(function () { return false; });
@@ -412,7 +415,12 @@ JH.Tracing = (function () {
     reset();
     setLevel(st.level);
     JH.Progress.markLearned(letterObj.letter);
-    var say = "Ikuti garis huruf " + letterObj.letter + ". Mulai dari titik yang bercahaya.";
+    var glyph = st.caseMode === "lower" ? letterObj.lower : letterObj.letter;
+    var caseLabel = st.caseMode === "lower" ? "Huruf kecil " : "Huruf besar ";
+    var label = document.getElementById("trace-case-label");
+    if (label) label.textContent = caseLabel + glyph;
+    if (canvas) canvas.setAttribute("aria-label", "Area menulis " + caseLabel.toLowerCase() + glyph + ". Ikuti garis dengan jari, stylus, atau tetikus.");
+    var say = "Ikuti garis " + caseLabel.toLowerCase() + glyph + ". Mulai dari titik yang bercahaya.";
     JH.UI.kiko(say, [{ text: "Ayo tulis huruf" }, { file: letterObj.audio.letter, text: letterObj.name, gap: 150 },
                      { text: "Ikuti garis, mulai dari titik yang bercahaya" }]);
   }

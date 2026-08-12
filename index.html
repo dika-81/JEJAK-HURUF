@@ -107,6 +107,10 @@
 
   <!-- ============ PILIH HURUF UNTUK DITULIS ============ -->
   <section class="screen" id="screen-trace" data-title="Jejak Huruf">
+    <div class="case-switch" role="group" aria-label="Pilih bentuk huruf">
+      <button class="case-btn" type="button" data-trace-case="upper" aria-pressed="true">ABC Huruf Besar</button>
+      <button class="case-btn" type="button" data-trace-case="lower" aria-pressed="false">abc huruf kecil</button>
+    </div>
     <p class="instruction">Pilih huruf yang ingin kamu tulis.</p>
     <div class="alphabet-grid" id="trace-grid" role="list"></div>
   </section>
@@ -114,6 +118,7 @@
   <!-- ============ CANVAS TRACING ============ -->
   <section class="screen no-pad" id="screen-canvas" data-title="Ikuti Garis">
     <div class="trace-head">
+      <strong class="trace-case-label" id="trace-case-label">Huruf Besar A</strong>
       <div class="level-switch" role="group" aria-label="Tingkat bantuan">
         <button class="lvl" type="button" data-level="1" aria-pressed="true">1</button>
         <button class="lvl" type="button" data-level="2" aria-pressed="false">2</button>

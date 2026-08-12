@@ -18,7 +18,9 @@ JH.UI = (function () {
     bubbleEl = bubbleEl || document.getElementById("kiko-bubble");
     if (bubbleEl && text) bubbleEl.textContent = text;
     lastText = text || lastText;
-    lastParts = (audioParts === false) ? [{ text: text }] : (audioParts || [{ text: text }]);
+    // `false` berarti benar-benar teks saja. Tombol ulangi tidak boleh
+    // diam-diam memanggil TTS perangkat untuk pesan tanpa aset audio.
+    lastParts = (audioParts === false) ? null : (audioParts || [{ text: text }]);
     if (audioParts !== false) JH.Audio.say(lastParts);
   }
 

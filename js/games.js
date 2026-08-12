@@ -147,7 +147,13 @@ JH.Games = (function () {
     var qText = target.word + " dimulai dengan huruf apa?";
 
     var pic = h("div", { class: "game-pic" });
-    var ask = function () { JH.Audio.say([{ file: target.audio.word, text: qText }]); };
+    var plainWordFile = "kata_" + target.word.toLowerCase();
+    var ask = function () {
+      JH.Audio.say([
+        { file: plainWordFile, text: target.word, gap: 160 },
+        { file: "prompt_dimulai_huruf_apa", text: "dimulai dengan huruf apa?" }
+      ]);
+    };
 
     var stage = h("div", { class: "game-stage" }, [
       pic,
@@ -178,7 +184,8 @@ JH.Games = (function () {
       JH.Progress.recordAnswer(target.letter, true);
       correctCount++; updateScore();
       JH.UI.kiko("Betul! " + target.word + " diawali huruf " + target.letter + ".",
-        [{ text: "Betul!" }, { file: target.audio.letter, text: target.name, gap: 120 }, { text: target.word }]);
+        [{ text: "Betul!" }, { file: target.audio.letter, text: target.name, gap: 120 },
+         { file: "kata_" + target.word.toLowerCase(), text: target.word }]);
       setTimeout(nextRound, 1400);
     } else {
       btn.classList.add("wrong");
@@ -186,7 +193,8 @@ JH.Games = (function () {
       JH.Audio.sfx("oops");
       JH.Progress.recordAnswer(target.letter, false);
       JH.UI.kiko("Belum. Dengarkan lagi kata " + target.word + ".",
-        [{ text: "Belum. Dengarkan lagi" }, { file: target.audio.word, text: target.word, gap: 100 }]);
+        [{ text: "Belum. Dengarkan lagi" },
+         { file: "kata_" + target.word.toLowerCase(), text: target.word, gap: 100 }]);
     }
   }
 
@@ -286,7 +294,8 @@ JH.Games = (function () {
           JH.Audio.sfx("success");
           JH.Progress.recordAnswer(L, true);
           JH.UI.kiko("Tepat! " + L + " untuk " + letterObj.word + ".",
-            [{ file: letterObj.audio.letter, text: letterObj.name, gap: 100 }, { text: letterObj.word }]);
+            [{ file: letterObj.audio.letter, text: letterObj.name, gap: 100 },
+             { file: "kata_" + letterObj.word.toLowerCase(), text: letterObj.word }]);
           if (solved >= 3) {
             locked = true;
             correctCount++; updateScore();
