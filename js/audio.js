@@ -1,52 +1,106 @@
 /* =========================================================
-   js/audio.js — MESIN SUARA
+   js/audio.js — MESIN SUARA BAHASA INDONESIA (V3)
    ---------------------------------------------------------
-   Urutan sumber suara:
-     1) File rekaman  ./assets/audio/<nama>.mp3   (paling bagus)
-     2) Text-to-Speech bawaan browser (Bahasa Indonesia)
-     3) Diam (tidak error) — teks tetap muncul di balon Kiko
+   Prioritas:
+     1) Rekaman lokal di ./assets/audio/ (MP3/M4A/WAV/OGG/WEBM)
+     2) TTS browser HANYA dengan target bahasa Indonesia id-ID
 
-   FILE AUDIO YANG PERLU DIREKAM (Bahasa Indonesia, suara ramah, pelan):
-     a.mp3 .. z.mp3        -> nama huruf: "A", "Be", "Ce", ...
-     apel.mp3, bola.mp3 .. -> "A seperti Apel", dst (lihat data/letters.js)
-     ba.mp3, bi.mp3, ...   -> suku kata (opsional)
-     buku.mp3, bola.mp3 .. -> kata (lihat data/words.js)
-     ini_buku.mp3, ...     -> kalimat (lihat data/words.js)
-     Kalimat instruksi Kiko (opsional):
-       kiko_halo.mp3, kiko_bagus.mp3, kiko_coba_lagi.mp3
-   Selama file belum ada, aplikasi otomatis memakai TTS.
+   V3 sengaja TIDAK memakai fallback bahasa Melayu (ms-MY) atau
+   bahasa Inggris. Teks legacy seperti "beh", "ceh", "deh" juga
+   dinormalisasi sebelum dibacakan agar tidak terdengar "beh/ceh".
    ========================================================= */
-
 window.JH = window.JH || {};
 
 JH.Audio = (function () {
+  "use strict";
+
   var AUDIO_DIR = "./assets/audio/";
-  var missing = {};      // cache nama file yang tidak ditemukan (hindari 404 berulang)
-  var cache = {};        // cache elemen Audio yang berhasil dimuat
-  var ctx = null;        // WebAudio untuk efek suara
-  var token = 0;         // pembatal antrian
-  var current = null;    // elemen audio yang sedang berbunyi
+  var AUDIO_EXTS = ["mp3", "m4a", "wav", "ogg", "webm"];
+  var missing = {};
+  var cache = {};
+  var ctx = null;
+  var token = 0;
+  var current = null;
   var voice = null;
   var voicesReady = false;
   var settings = { sound: true };
-
   var TTS = ("speechSynthesis" in window) && ("SpeechSynthesisUtterance" in window);
 
-  /* ---------- inisialisasi suara TTS ---------- */
-  function pickVoice() {
-    if (!TTS) return;
-    var list = window.speechSynthesis.getVoices() || [];
-    if (!list.length) return;
-    voice =
-      list.find(function (v) { return /^id(-|_)?/i.test(v.lang); }) ||
-      list.find(function (v) { return /indonesi/i.test(v.name); }) ||
-      list.find(function (v) { return /^ms(-|_)?/i.test(v.lang); }) ||
-      null;
-    voicesReady = true;
+  /* ---------- pemilihan voice Indonesia ---------- */
+  function isIndonesianVoice(v) {
+    return !!v && /^id(?:-|_)/i.test(String(v.lang || ""));
   }
+
+  function voiceScore(v) {
+    var n = String(v.name || "");
+    var score = 0;
+    if (isIndonesianVoice(v)) score += 1000;
+    if (/Gadis|Ardi|Bahasa Indonesia|Indonesian/i.test(n)) score += 220;
+    if (/Natural|Neural|Online/i.test(n)) score += 120;
+    if (/Microsoft|Google/i.test(n)) score += 50;
+    if (v.localService === false) score += 15; // online voices sering lebih natural
+    return score;
+  }
+
+  function pickVoice() {
+    if (!TTS) return null;
+    var list = window.speechSynthesis.getVoices() || [];
+    if (!list.length) return null;
+
+    var ids = list.filter(isIndonesianVoice);
+    ids.sort(function (a, b) { return voiceScore(b) - voiceScore(a); });
+    voice = ids.length ? ids[0] : null;
+    voicesReady = true;
+    return voice;
+  }
+
   if (TTS) {
     pickVoice();
-    window.speechSynthesis.onvoiceschanged = pickVoice;
+    window.speechSynthesis.onvoiceschanged = function () { pickVoice(); };
+  }
+
+  /* ---------- normalisasi ucapan Indonesia ---------- */
+  var REPLACEMENTS = [
+    [/\bbeh\b/gi, "bé"],
+    [/\bceh\b/gi, "cé"],
+    [/\bdeh\b/gi, "dé"],
+    [/\bgeh\b/gi, "gé"],
+    [/\bjeh\b/gi, "jé"],
+    [/\bkeh\b/gi, "ka"],
+    [/\bpeh\b/gi, "pé"],
+    [/\bteh\b/gi, "té"],
+    [/\bveh\b/gi, "fé"],
+    [/\bweh\b/gi, "wé"],
+    [/\byeh\b/gi, "yé"],
+    [/\bzeh\b/gi, "zet"],
+
+    // nama huruf yang sering dibaca seperti bahasa asing oleh TTS
+    [/\bQi\b/g, "ki"],
+    [/\bVe\b/g, "fé"],
+    [/\bBe\b/g, "bé"],
+    [/\bCe\b/g, "cé"],
+    [/\bDe\b/g, "dé"],
+    [/\bGe\b/g, "gé"],
+    [/\bJe\b/g, "jé"],
+    [/\bPe\b/g, "pé"],
+    [/\bTe\b/g, "té"],
+    [/\bWe\b/g, "wé"],
+    [/\bYe\b/g, "yé"]
+  ];
+
+  function normalizeIndonesian(text) {
+    var s = String(text == null ? "" : text).trim();
+    REPLACEMENTS.forEach(function (r) { s = s.replace(r[0], r[1]); });
+
+    // Hindari seluruh kata kapital dibaca sebagai singkatan.
+    // Huruf tunggal tetap dibiarkan karena beberapa bagian UI memang menampilkan huruf.
+    s = s.replace(/\b[A-Z]{2,}\b/g, function (w) {
+      return w.charAt(0) + w.slice(1).toLowerCase();
+    });
+
+    // Rapikan jeda agar pelafalan tidak terburu-buru.
+    s = s.replace(/\s+/g, " ");
+    return s;
   }
 
   /* ---------- WebAudio untuk efek ---------- */
@@ -84,25 +138,29 @@ JH.Audio = (function () {
     oops:    function () { beep(320, 0, 0.14, "sine", 0.1); beep(250, 0.12, 0.2, "sine", 0.1); },
     sparkle: function () { beep(1200, 0, 0.06, "triangle", 0.1); beep(1600, 0.06, 0.06, "triangle", 0.08); }
   };
+
   function sfx(name) { if (SFX[name]) SFX[name](); }
 
-  /* ---------- memutar file audio ---------- */
-  function playFile(name) {
+  /* ---------- file audio lokal ---------- */
+  function hasExplicitExt(name) {
+    return /\.(mp3|m4a|wav|ogg|webm)$/i.test(String(name || ""));
+  }
+
+  function tryAudioUrl(url, key) {
     return new Promise(function (resolve, reject) {
-      if (!name || missing[name] || !settings.sound) return reject(new Error("skip"));
-      var a = cache[name];
+      var a = cache[url];
       if (!a) {
-        a = new Audio(AUDIO_DIR + name + ".mp3");
+        a = new Audio(url);
         a.preload = "auto";
       }
       var done = false;
-      function ok() { if (!done) { done = true; cleanup(); resolve(); } }
-      function fail(e) {
-        if (!done) {
-          done = true; cleanup();
-          missing[name] = true;
-          reject(new Error("audio tidak ditemukan: " + name));
-        }
+      function ok() {
+        if (done) return;
+        done = true; cleanup(); resolve();
+      }
+      function fail() {
+        if (done) return;
+        done = true; cleanup(); reject(new Error("audio tidak ditemukan: " + key));
       }
       function cleanup() {
         a.removeEventListener("ended", ok);
@@ -112,30 +170,70 @@ JH.Audio = (function () {
       a.addEventListener("error", fail);
       try {
         a.currentTime = 0;
-        var p = a.play();
         current = a;
-        cache[name] = a;
+        cache[url] = a;
+        var p = a.play();
         if (p && p.catch) p.catch(fail);
-      } catch (e) { fail(e); }
+      } catch (e) { fail(); }
     });
   }
 
-  /* ---------- Text to Speech ---------- */
+  function playFile(name) {
+    return new Promise(function (resolve, reject) {
+      if (!name || missing[name] || !settings.sound) {
+        reject(new Error("skip")); return;
+      }
+
+      var urls;
+      if (hasExplicitExt(name)) {
+        urls = [AUDIO_DIR + name];
+      } else {
+        urls = AUDIO_EXTS.map(function (ext) { return AUDIO_DIR + name + "." + ext; });
+      }
+
+      var i = 0;
+      function next() {
+        if (i >= urls.length) {
+          missing[name] = true;
+          reject(new Error("audio tidak ditemukan: " + name));
+          return;
+        }
+        var url = urls[i++];
+        tryAudioUrl(url, name).then(resolve).catch(next);
+      }
+      next();
+    });
+  }
+
+  /* ---------- TTS Bahasa Indonesia ---------- */
   function speak(text, rate) {
     return new Promise(function (resolve) {
-      if (!TTS || !text || !settings.sound) { setTimeout(resolve, 120); return; }
+      if (!TTS || !text || !settings.sound) {
+        setTimeout(resolve, 100); return;
+      }
+
       try {
-        if (!voicesReady) pickVoice();
-        var u = new SpeechSynthesisUtterance(text);
-        u.lang = (voice && voice.lang) || "id-ID";
-        if (voice) u.voice = voice;
-        u.rate = rate || 0.85;
-        u.pitch = 1.15;
-        var guard = setTimeout(resolve, Math.max(1200, text.length * 130));
+        if (!voicesReady || !voice) pickVoice();
+        var spoken = normalizeIndonesian(text);
+        var u = new SpeechSynthesisUtterance(spoken);
+
+        // Jangan pernah memaksa voice Melayu/Inggris.
+        // Bila voice id-ID tersedia, pakai voice tersebut. Bila belum terdaftar,
+        // minta browser menyintesis dengan locale id-ID tanpa menetapkan voice asing.
+        u.lang = "id-ID";
+        if (voice && isIndonesianVoice(voice)) u.voice = voice;
+
+        u.rate = Math.max(0.68, Math.min(1.0, Number(rate) || 0.82));
+        u.pitch = 1.0;
+        u.volume = 1.0;
+
+        var guard = setTimeout(resolve, Math.max(1400, spoken.length * 145));
         u.onend = function () { clearTimeout(guard); resolve(); };
         u.onerror = function () { clearTimeout(guard); resolve(); };
         window.speechSynthesis.speak(u);
-      } catch (e) { setTimeout(resolve, 120); }
+      } catch (e) {
+        setTimeout(resolve, 100);
+      }
     });
   }
 
@@ -147,19 +245,13 @@ JH.Audio = (function () {
     try { if (current) { current.pause(); current.currentTime = 0; } } catch (e) {}
   }
 
-  /**
-   * Ucapkan satu bagian: coba file dulu, kalau tidak ada pakai TTS.
-   * part = { file:"a", text:"A", rate:0.8, gap:250 }
-   */
   function sayOne(part) {
     if (typeof part === "string") part = { text: part };
-    return playFile(part.file).catch(function () { return speak(part.text, part.rate); });
+    return playFile(part && part.file).catch(function () {
+      return speak(part && part.text, part && part.rate);
+    });
   }
 
-  /**
-   * Ucapkan berurutan. Memanggil say() baru akan membatalkan antrian lama.
-   * JH.Audio.say([{file:"a",text:"A"},{text:"A seperti Apel", gap:200}])
-   */
   function say(parts) {
     stop();
     var my = token;
@@ -168,7 +260,7 @@ JH.Audio = (function () {
     list.forEach(function (p) {
       chain = chain.then(function () {
         if (my !== token) return;
-        return sayOne(p).then(function () {
+        return sayOne(p || {}).then(function () {
           if (p && p.gap) return wait(p.gap);
         });
       });
@@ -176,10 +268,9 @@ JH.Audio = (function () {
     return chain.catch(function () {});
   }
 
-  /* ---------- aktivasi audio pada sentuhan pertama ---------- */
   function unlock() {
     ensureCtx();
-    if (TTS && !voicesReady) pickVoice();
+    if (TTS) pickVoice();
   }
 
   function setSound(on) {
@@ -187,9 +278,26 @@ JH.Audio = (function () {
     if (!on) stop();
   }
 
+  function voiceInfo() {
+    if (TTS && (!voicesReady || !voice)) pickVoice();
+    return {
+      available: !!voice,
+      name: voice ? voice.name : "",
+      lang: voice ? voice.lang : "id-ID (requested)",
+      isIndonesian: !!voice && isIndonesianVoice(voice)
+    };
+  }
+
   return {
-    say: say, speak: speak, playFile: playFile, sfx: sfx,
-    stop: stop, unlock: unlock, setSound: setSound,
+    say: say,
+    speak: speak,
+    playFile: playFile,
+    sfx: sfx,
+    stop: stop,
+    unlock: unlock,
+    setSound: setSound,
+    normalizeIndonesian: normalizeIndonesian,
+    voiceInfo: voiceInfo,
     get soundOn() { return settings.sound; },
     get ttsAvailable() { return TTS; }
   };
