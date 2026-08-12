@@ -1,12 +1,12 @@
 /* =========================================================
-   service-worker.js — OFFLINE CACHE V10
+   service-worker.js — OFFLINE CACHE V11
    ---------------------------------------------------------
-   V10 memakai network-first untuk HTML/JS/CSS/data agar update
+   V11 memakai network-first untuk HTML/JS/CSS/data agar update
    GitHub Pages tidak tertahan cache lama. Audio/gambar tetap
    cache-first supaya hemat data dan responsif.
    ========================================================= */
 
-var CACHE = "jejak-huruf-v10-bebelac-anchor";
+var CACHE = "jejak-huruf-v11-direct-be";
 var ASSETS = [
   "./",
   "./index.html",

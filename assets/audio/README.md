@@ -7,8 +7,10 @@ yang diputar akan disimpan otomatis oleh service worker untuk pemakaian offline.
 
 Audio memakai suara neural Bahasa Indonesia. Nama huruf dan suku kata yang
 rawan terbaca sebagai ejaan asing harus diuji satu per satu; aset `b.mp3`,
-`w.mp3`, dan `bi.mp3` diambil langsung dari bunyi pada kata acuan **Bebelac**,
-**cewek**, dan **bilingual**, lalu dipotong sebelum konsonan berikutnya. Dengan
+`w.mp3` dan `bi.mp3` diambil langsung dari bunyi pada kata acuan **cewek** dan
+**bilingual**, lalu dipotong sebelum konsonan berikutnya. Khusus `b.mp3`, suara
+dibuat langsung sebagai **bé**, dengan é seperti pada suku kata **me** dalam
+**Amerika**. Dengan
 begitu hasilnya adalah **be**, **we**, dan **bi** yang menyatu, bukan nama huruf
 bergaya Inggris atau ejaan terpisah. Jika tersedia rekaman manusia, ganti
 berkas dengan nama yang sama agar kode aplikasi tidak perlu diubah.
